@@ -3,16 +3,14 @@ package com.v1.sport.data.models;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity(name = "trainings")
+@Entity(name = "description_items")
 @Table
-public class Training {
+public class DescriptionItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,16 +22,10 @@ public class Training {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "date")
-    private String date;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "training")
-    private Set<TrainAdvice> advices;
+    @Column(name = "description_type")
+    private DescriptionType descriptionType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
-    @Column(name = "is_done")
-    private boolean isDone;
 }
