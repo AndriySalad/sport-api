@@ -62,6 +62,9 @@ public class User implements UserDetails {
     @JoinColumn(name = "trainer_id")
     private User trainer;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private Set<DescriptionItem> descriptions = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
