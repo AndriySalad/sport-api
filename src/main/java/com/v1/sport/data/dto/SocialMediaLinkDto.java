@@ -7,7 +7,10 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequestDto {
-    private String email;
-    private String password;
+public class SocialMediaLinkDto {
+    private Long id;
+
+    private String link;
+
+    private String title;
 }

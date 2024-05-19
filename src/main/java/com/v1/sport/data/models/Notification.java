@@ -39,6 +39,7 @@ public class Notification {
     private Timestamp date;
 
     @Column(name = "type")
+    @Enumerated(EnumType.STRING)
     private NotificationType type;
 
 }

@@ -2,17 +2,22 @@ package com.v1.sport.data.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequestDto {
+public class TrainerDto {
+
+    private Long id;
     private String firstName;
     private String lastName;
     private String userName;
-    private String role;
     private String email;
     private String phone;
-    private String password;
+    private List<SocialMediaLinkDto> socialMediaLinks;
+    private List<DescriptionItemDto> descriptions;
+
 }
