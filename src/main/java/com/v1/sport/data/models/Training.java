@@ -27,7 +27,7 @@ public class Training {
     @Column(name = "date")
     private String date;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "training")
     private Set<TrainAdvice> advices;
 
     @ManyToOne(fetch = FetchType.LAZY)

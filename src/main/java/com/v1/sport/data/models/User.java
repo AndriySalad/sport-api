@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -48,11 +49,18 @@ public class User implements UserDetails {
     @Column(name = "role")
     private Role role;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private Set<Training> trainings;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private Set<SocialMediaLink> socialMediaLinks;
+
+    @OneToMany(mappedBy = "trainer", fetch = FetchType.LAZY)
+    private Set<User> athletes = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trainer_id")
+    private User trainer;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
