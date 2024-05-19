@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .phoneNumber(request.getPhone())
-                .role(Role.ROLE_USER)
+                .role(Role.valueOf(request.getRole().toUpperCase()))
                 .isActive(true)
                 .build();
         var savedUser = userRepository.save(user);
