@@ -249,7 +249,7 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
     public List<UserListItemDto> getAllTrainees() {
         List<User> trainees = userRepository.findAllByRole(Role.ROLE_USER);
         return trainees.stream()
-                .map(this::mapToUserListItemDto)
+                .map(this::mapToDto)
                 .toList();
     }
 
@@ -257,11 +257,12 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
     public List<UserListItemDto> getAllTrainers() {
         List<User> trainers = userRepository.findAllByRole(Role.ROLE_TRAINER);
         return trainers.stream()
-                .map(this::mapToUserListItemDto)
+                .map(this::mapToDto)
                 .toList();
     }
 
-    private UserListItemDto mapToUserListItemDto(User user) {
+    @Override
+    public UserListItemDto mapToDto(User user) {
         return UserListItemDto.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
