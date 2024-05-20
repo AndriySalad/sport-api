@@ -19,7 +19,9 @@ public class TrainingDto {
 
     private String date;
 
-    private Set<TrainAdvice> advices;
+    private Set<TrainingAdviceDto> advices;
 
     private boolean isDone;
+
+    private boolean isPublished;
 }

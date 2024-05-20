@@ -36,4 +36,7 @@ public class Training {
 
     @Column(name = "is_done")
     private boolean isDone;
+
+    @Column(name = "is_published")
+    private boolean isPublished;
 }

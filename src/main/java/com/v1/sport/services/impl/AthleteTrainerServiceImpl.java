@@ -266,6 +266,7 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .userName(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();
