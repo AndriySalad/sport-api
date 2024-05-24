@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TraineeDto {
+public class UserProfileDto {
     private Long id;
     private String firstName;
     private String lastName;
@@ -17,5 +17,4 @@ public class TraineeDto {
     private String email;
     private String phone;
     private List<SocialMediaLinkDto> socialMediaLinks;
-    private List<TrainingDto> trainers;
 }

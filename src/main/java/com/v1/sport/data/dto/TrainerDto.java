@@ -18,6 +18,5 @@ public class TrainerDto {
     private String email;
     private String phone;
     private List<SocialMediaLinkDto> socialMediaLinks;
-    private List<DescriptionItemDto> descriptions;
 
 }
