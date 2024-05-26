@@ -19,5 +19,6 @@ public class UserProfileDto {
     private String goalDescription;
     private String experienceDescription;
     private String injuryDescription;
+    private String role;
     private List<SocialMediaLinkDto> socialMediaLinks;
 }

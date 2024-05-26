@@ -8,23 +8,7 @@ import com.v1.sport.data.models.User;
 import java.util.List;
 
 public interface AthleteTrainerService {
-
-    void toBeTrainee(Long athleteId, Long trainerId);
-
-    void toBeTrainer(Long athleteId, Long trainerId);
-
-    void acceptTrainee(Long athleteId, Long trainerId);
-
-    void rejectTrainee(Long athleteId, Long trainerId);
-
-    void removeTrainee(Long athleteId, Long trainerId);
-
-    void removeTrainer(Long athleteId, Long trainerId);
-
-    void acceptTrainer(Long athleteId, Long trainerId);
-
-    void rejectTrainer(Long athleteId, Long trainerId);
-
+    
     List<TraineeDto> getTraineesByTrainer(Long trainerId);
 
     TrainerDto getTrainerByTrainee(Long athleteId);
@@ -34,4 +18,8 @@ public interface AthleteTrainerService {
     List<UserListItemDto> getAllTrainers();
 
     UserListItemDto mapToDto(User user);
+
+    void createRequest(Long athleteId, Long trainerId, String type);
+
+    void handleRequest(Long athleteId, Long trainerId, String action);
 }

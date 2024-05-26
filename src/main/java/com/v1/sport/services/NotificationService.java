@@ -6,13 +6,13 @@ import java.util.List;
 
 public interface NotificationService {
 
-    List<NotificationDto> getNewNotifications(Long userId);
+    List<NotificationDto> getNewNotifications();
 
-    List<NotificationDto> getAllNotifications(Long userId);
+    List<NotificationDto> getAllNotifications();
 
     NotificationDto markNotificationAsRead(Long notificationId);
 
     List<NotificationDto> markAllNotificationsAsRead(Long userId);
 
-    NotificationDto createNotification(Long senderId, Long receiverId);
+    NotificationDto handleRequestResponse(Long notificationId, String response);
 }

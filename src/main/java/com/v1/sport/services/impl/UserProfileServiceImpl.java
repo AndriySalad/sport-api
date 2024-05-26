@@ -52,6 +52,7 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .injuryDescription(user.getInjuryDescription())
                 .experienceDescription(user.getExperienceDescription())
                 .goalDescription(user.getGoalDescription())
+                .role(user.getRole().toString())
                 .build();
 
         return userProfileDto;
