@@ -4,9 +4,9 @@ import com.v1.sport.data.dto.SocialMediaLinkDto;
 
 public interface SocialMediaLinkService {
 
-    void createSocialMediaLink(Long userId, SocialMediaLinkDto dto);
+    SocialMediaLinkDto createSocialMediaLink(SocialMediaLinkDto dto);
 
-    void deleteSocialMediaLink(Long userId, Long linkId);
+    void deleteSocialMediaLink(Long linkId);
 
-    void updateSocialMediaLink(Long userId, SocialMediaLinkDto dto);
+    SocialMediaLinkDto updateSocialMediaLink(SocialMediaLinkDto dto, Long socialMediaLinkId);
 }

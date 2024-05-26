@@ -8,6 +8,7 @@ import com.v1.sport.repository.SocialMediaLinkRepository;
 import com.v1.sport.repository.UserRepository;
 import com.v1.sport.services.SocialMediaLinkService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,32 +21,46 @@ public class SocialMediaLinkImpl implements SocialMediaLinkService {
 
     @Override
     @Transactional
-    public void createSocialMediaLink(Long userId, SocialMediaLinkDto dto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+    public SocialMediaLinkDto createSocialMediaLink(SocialMediaLinkDto dto) {
+        User user = userRepository
+                .findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         SocialMediaLink link = SocialMediaLink.builder()
                 .link(dto.getLink())
                 .title(dto.getTitle())
                 .user(user)
                 .build();
-        socialMediaLinkRepository.save(link);
-
+        SocialMediaLink newLink = socialMediaLinkRepository.save(link);
+        return SocialMediaLinkDto.builder()
+                .id(newLink.getId())
+                .link(newLink.getLink())
+                .title(newLink.getTitle())
+                .build();
     }
 
     @Override
-    public void deleteSocialMediaLink(Long userId, Long linkId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+    public void deleteSocialMediaLink(Long linkId) {
+        User user = userRepository
+                .findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         SocialMediaLink link = socialMediaLinkRepository.findByIdAndUser(linkId, user).orElseThrow(() -> new EntityNotFoundException("Link not found"));
         socialMediaLinkRepository.delete(link);
-
     }
 
     @Override
-    public void updateSocialMediaLink(Long userId, SocialMediaLinkDto dto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        SocialMediaLink link = socialMediaLinkRepository.findByIdAndUser(dto.getId(), user).orElseThrow(() -> new EntityNotFoundException("Link not found"));
+    public SocialMediaLinkDto updateSocialMediaLink(SocialMediaLinkDto dto, Long socialMediaLinkId) {
+        User user = userRepository
+                .findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        SocialMediaLink link = socialMediaLinkRepository.findByIdAndUser(socialMediaLinkId, user).orElseThrow(() -> new EntityNotFoundException("Link not found"));
         link.setLink(dto.getLink());
         link.setTitle(dto.getTitle());
-        socialMediaLinkRepository.save(link);
+        SocialMediaLink newLink = socialMediaLinkRepository.save(link);
+        return SocialMediaLinkDto.builder()
+                .id(newLink.getId())
+                .link(newLink.getLink())
+                .title(newLink.getTitle())
+                .build();
     }
 }
