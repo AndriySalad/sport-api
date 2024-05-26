@@ -1,6 +1,5 @@
 package com.v1.sport.data.dto;
 
-import com.v1.sport.data.models.TrainAdvice;
 import lombok.*;
 
 import java.util.Set;
@@ -19,9 +18,7 @@ public class TrainingDto {
 
     private String date;
 
-    private Set<TrainingAdviceDto> advices;
+    private Set<ExerciseDto> exercises;
 
-    private boolean isDone;
-
-    private boolean isPublished;
+    private Long creatorId;
 }

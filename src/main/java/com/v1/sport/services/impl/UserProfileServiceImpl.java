@@ -2,10 +2,14 @@ package com.v1.sport.services.impl;
 
 import com.v1.sport.Exceptions.EntityNotFoundException;
 import com.v1.sport.data.dto.SocialMediaLinkDto;
+import com.v1.sport.data.dto.TrainingDto;
 import com.v1.sport.data.dto.UserProfileDto;
 import com.v1.sport.data.models.SocialMediaLink;
+import com.v1.sport.data.models.Training;
 import com.v1.sport.data.models.User;
+import com.v1.sport.repository.TrainingRepository;
 import com.v1.sport.repository.UserRepository;
+import com.v1.sport.services.TrainingService;
 import com.v1.sport.services.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +23,8 @@ import java.util.List;
 public class UserProfileServiceImpl implements UserProfileService {
 
     private final UserRepository userRepository;
+    private final TrainingRepository trainingRepository;
+    private final TrainingService trainingService;
 
     @Override
     public UserProfileDto getUserProfile() {
@@ -117,5 +123,17 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .goalDescription(user.getGoalDescription())
                 .build();
         return userProfileDto;
+    }
+
+    @Override
+    public List<TrainingDto> getMyTrainings(String startDate, String endDate) {
+        User user = userRepository
+                .findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        List<Training> trainings = trainingRepository
+                .findAllByUserIdAndDateBetween(user.getId(), startDate, endDate);
+        return trainings.stream()
+                .map(trainingService::mapToDto)
+                .toList();
     }
 }

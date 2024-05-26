@@ -1,22 +1,25 @@
 package com.v1.sport.services;
 
-import com.v1.sport.data.dto.TrainingAdviceDto;
+import com.v1.sport.data.dto.ExerciseDto;
 import com.v1.sport.data.dto.TrainingDto;
+import com.v1.sport.data.models.Exercise;
+import com.v1.sport.data.models.Training;
 
 import java.util.List;
 
 public interface TrainingService {
 
-    TrainingDto initTraining(Long athleteId);
+    TrainingDto initTraining(Long athleteId, TrainingDto trainingDto);
 
     TrainingDto updateTraining(Long trainingId, TrainingDto trainingDto);
 
-    TrainingAdviceDto initTrainingAdvice(Long trainingId);
-    TrainingDto getTraining(Long trainingId);
-    List<TrainingDto> getTrainingsByAthlete(Long athleteId);
+    ExerciseDto createExercise(Long trainingId, ExerciseDto exerciseDto);
 
+    List<TrainingDto> getTrainingsByAthlete(Long athleteId, String startDate, String endDate);
 
-    TrainingDto publishTraining(Long trainingId);
+    ExerciseDto markExerciseAsDone(Long trainingId, Long exerciseId);
 
-    TrainingDto markTrainingAsDone(Long trainingId);
+    ExerciseDto updateExercise(ExerciseDto exerciseDto, Long trainingId, Long adviceId);
+
+    TrainingDto mapToDto(Training training);
 }
