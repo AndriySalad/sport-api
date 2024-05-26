@@ -19,6 +19,12 @@ public class UserProfileController {
         return userProfileService.getUserProfile();
     }
 
+    @PutMapping
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_TRAINER')")
+    public UserProfileDto updateMyProfile(@RequestBody UserProfileDto dto) {
+        return userProfileService.updateUserProfile(dto);
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_TRAINER')")
     public UserProfileDto getUserProfileById(@PathVariable("id") Long id) {

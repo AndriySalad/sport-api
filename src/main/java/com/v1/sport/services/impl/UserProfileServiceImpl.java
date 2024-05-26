@@ -43,6 +43,9 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .phone(user.getPhoneNumber())
                 .userName(user.getName())
                 .socialMediaLinks(socialMediaLinkDtos)
+                .injuryDescription(user.getInjuryDescription())
+                .experienceDescription(user.getExperienceDescription())
+                .goalDescription(user.getGoalDescription())
                 .build();
 
         return userProfileDto;
@@ -70,8 +73,49 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .phone(user.getPhoneNumber())
                 .userName(user.getName())
                 .socialMediaLinks(socialMediaLinkDtos)
+                .injuryDescription(user.getInjuryDescription())
+                .experienceDescription(user.getExperienceDescription())
+                .goalDescription(user.getGoalDescription())
                 .build();
 
+        return userProfileDto;
+    }
+
+    @Override
+    public UserProfileDto updateUserProfile(UserProfileDto dto) {
+        User user = userRepository
+                .findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        user.setEmail(dto.getEmail());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setPhoneNumber(dto.getPhone());
+        user.setName(dto.getUserName());
+        user.setGoalDescription(dto.getGoalDescription());
+        user.setExperienceDescription(dto.getExperienceDescription());
+        user.setInjuryDescription(dto.getInjuryDescription());
+
+        User updatedUser =  userRepository.save(user);
+        List<SocialMediaLinkDto> socialMediaLinkDtos = updatedUser.getSocialMediaLinks().stream()
+                .map(socialMediaLink -> SocialMediaLinkDto.builder()
+                        .id(socialMediaLink.getId())
+                        .link(socialMediaLink.getLink())
+                        .title(socialMediaLink.getTitle())
+                        .build())
+                .toList();
+
+        UserProfileDto userProfileDto = UserProfileDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phone(user.getPhoneNumber())
+                .userName(user.getName())
+                .socialMediaLinks(socialMediaLinkDtos)
+                .injuryDescription(user.getInjuryDescription())
+                .experienceDescription(user.getExperienceDescription())
+                .goalDescription(user.getGoalDescription())
+                .build();
         return userProfileDto;
     }
 }
