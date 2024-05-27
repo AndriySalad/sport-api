@@ -21,4 +21,7 @@ public class UserProfileDto {
     private String injuryDescription;
     private String role;
     private List<SocialMediaLinkDto> socialMediaLinks;
+    private List<UserListItemDto> athletes;
+    private Long trainerId;
+    private Long notificationCount;
 }

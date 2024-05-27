@@ -70,10 +70,10 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalArgumentException("Notification not found"));
 
-        Long athleteId = notification.getReceiver().getId();
-        Long trainerId = notification.getSender().getId();
+        Long receiverId = notification.getReceiver().getId();
+        Long senderId = notification.getSender().getId();
 
-        athleteTrainerService.handleRequest(athleteId, trainerId, response);
+        athleteTrainerService.handleRequest(senderId, receiverId, response);
 
         notification.setViewed(true);
         notificationRepository.save(notification);

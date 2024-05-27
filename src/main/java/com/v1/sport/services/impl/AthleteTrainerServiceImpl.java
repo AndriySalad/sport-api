@@ -1,6 +1,7 @@
 package com.v1.sport.services.impl;
 
 import com.v1.sport.Exceptions.EntityNotFoundException;
+import com.v1.sport.data.dto.SocialMediaLinkDto;
 import com.v1.sport.data.dto.TraineeDto;
 import com.v1.sport.data.dto.TrainerDto;
 import com.v1.sport.data.dto.UserListItemDto;
@@ -33,20 +34,58 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
 
         switch (action.toLowerCase()) {
             case "accept-trainee":
+                if (athlete.getRole().equals(Role.ROLE_TRAINER)) {
+                    trainer.setTrainer(athlete);
+                    userRepository.save(athlete);
+                    createNotification(athleteId, trainerId, "ACCEPTED_ATHLETE");
+                }
+                else{
+                    athlete.setTrainer(trainer);
+                    userRepository.save(athlete);
+                    createNotification(trainerId, athleteId, "ACCEPTED_ATHLETE");
+                }
+                break;
             case "accept-trainer":
-                athlete.setTrainer(trainer);
-                userRepository.save(athlete);
-                createNotification(trainerId, athleteId, action.equals("accept-trainee") ? "ACCEPTED_TRAINEE" : "ACCEPTED_COACH");
+                if (athlete.getRole().equals(Role.ROLE_TRAINER)) {
+                    trainer.setTrainer(athlete);
+                    userRepository.save(athlete);
+                    createNotification(trainerId, athleteId, "ACCEPTED_COACH");
+                }
+                else{
+                    athlete.setTrainer(trainer);
+                    userRepository.save(athlete);
+                    createNotification(athleteId, trainerId, "ACCEPTED_COACH");
+                }
                 break;
             case "reject-trainee":
+                createNotification(trainerId, athleteId, "REJECTED_ATHLETE");
+                break;
             case "reject-trainer":
-                createNotification(trainerId, athleteId, action.equals("reject-trainee") ? "REJECTED_TRAINEE" : "ACCEPTED_COACH");
+                createNotification(athleteId, trainerId, "REJECTED_COACH");
                 break;
             case "remove-trainee":
+                if (athlete.getRole().equals(Role.ROLE_TRAINER)) {
+                    trainer.setTrainer(null);
+                    userRepository.save(athlete);
+                    createNotification(trainerId, athleteId, "REMOVED_ATHLETE");
+                }
+                else {
+                    athlete.setTrainer(null);
+                    userRepository.save(athlete);
+                    createNotification(athleteId, trainerId, "REMOVED_ATHLETE");
+                }
+                break;
             case "remove-trainer":
-                athlete.setTrainer(null);
-                userRepository.save(athlete);
-                createNotification(trainerId, athleteId, action.equals("remove-trainee") ? "REMOVED_TRAINEE" : "ACCEPTED_COACH");
+                if (athlete.getRole().equals(Role.ROLE_TRAINER)) {
+                    trainer.setTrainer(null);
+                    userRepository.save(athlete);
+                    createNotification(trainerId, athleteId, "REMOVED_COACH");
+                }
+                else {
+                    athlete.setTrainer(null);
+                    userRepository.save(athlete);
+                    createNotification(athleteId, trainerId, "REMOVED_COACH");
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Invalid action: " + action);
@@ -54,8 +93,18 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
     }
 
     @Override
-    public void createRequest(Long athleteId, Long trainerId, String type) {
-        createNotification(trainerId, athleteId, type);
+    public List<TraineeDto> getAthletesByTrainer(Long trainerId) {
+        User trainer = userRepository.findById(trainerId)
+                .orElseThrow(() -> new EntityNotFoundException("Trainer not found"));
+        List<User> athletes = userRepository.findAllByTrainer(trainer);
+        return athletes.stream()
+                .map(this::mapToTraineeDto)
+                .toList();
+    }
+
+    @Override
+    public void createRequest(Long senderId, Long receiverId, String type) {
+        createNotification(senderId, receiverId, type);
     }
 
     private void createNotification(Long senderId, Long receiverId, String type) {
@@ -74,18 +123,12 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
         notificationRepository.save(notification);
     }
 
-
-
     @Override
-    public List<TraineeDto> getTraineesByTrainer(Long trainerId) {
-        User trainer = userRepository.findById(trainerId)
+    public TraineeDto getAthlete(Long trainerId) {
+        User athlete = userRepository.findById(trainerId)
                 .orElseThrow(() -> new EntityNotFoundException("Trainer not found"));
 
-        List<User> trainees = userRepository.findAllByTrainer(trainer);
-
-        return trainees.stream()
-                .map(this::mapToTraineeDto)
-                .toList();
+        return mapToTraineeDto(athlete);
     }
 
     private TraineeDto mapToTraineeDto(User user) {
@@ -94,14 +137,26 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .phone(user.getPhoneNumber())
+                .trainerId(user.getTrainer() != null ? user.getTrainer().getId() : null)
+                .goalDescription(user.getGoalDescription())
+                .experienceDescription(user.getExperienceDescription())
+                .injuryDescription(user.getInjuryDescription())
+                .role(user.getRole().name())
+                .socialMediaLinks(user.getSocialMediaLinks().stream()
+                        .map(socialMediaLink -> SocialMediaLinkDto.builder()
+                                .id(socialMediaLink.getId())
+                                .link(socialMediaLink.getLink())
+                                .title(socialMediaLink.getTitle())
+                                .build())
+                        .toList())
                 .build();
     }
 
     @Override
-    public TrainerDto getTrainerByTrainee(Long athleteId) {
-        User athlete = userRepository.findById(athleteId)
-                .orElseThrow(() -> new EntityNotFoundException("Athlete not found"));
-        User trainer = athlete.getTrainer();
+    public TrainerDto getTrainer(Long trainerId) {
+        User trainer = userRepository.findById(trainerId)
+                .orElseThrow(() -> new EntityNotFoundException("Trainer not found"));
 
         return mapToTrainerDto(trainer);
     }
@@ -112,6 +167,18 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .phone(user.getPhoneNumber())
+                .goalDescription(user.getGoalDescription())
+                .experienceDescription(user.getExperienceDescription())
+                .injuryDescription(user.getInjuryDescription())
+                .role(user.getRole().name())
+                .socialMediaLinks(user.getSocialMediaLinks().stream()
+                        .map(socialMediaLink -> SocialMediaLinkDto.builder()
+                                .id(socialMediaLink.getId())
+                                .link(socialMediaLink.getLink())
+                                .title(socialMediaLink.getTitle())
+                                .build())
+                        .toList())
                 .build();
     }
 

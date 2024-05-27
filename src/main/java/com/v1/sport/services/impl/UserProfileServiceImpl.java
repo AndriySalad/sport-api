@@ -1,12 +1,12 @@
 package com.v1.sport.services.impl;
 
 import com.v1.sport.Exceptions.EntityNotFoundException;
-import com.v1.sport.data.dto.SocialMediaLinkDto;
-import com.v1.sport.data.dto.TrainingDto;
-import com.v1.sport.data.dto.UserProfileDto;
+import com.v1.sport.data.dto.*;
+import com.v1.sport.data.models.Role;
 import com.v1.sport.data.models.SocialMediaLink;
 import com.v1.sport.data.models.Training;
 import com.v1.sport.data.models.User;
+import com.v1.sport.repository.NotificationRepository;
 import com.v1.sport.repository.TrainingRepository;
 import com.v1.sport.repository.UserRepository;
 import com.v1.sport.services.TrainingService;
@@ -25,6 +25,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final UserRepository userRepository;
     private final TrainingRepository trainingRepository;
     private final TrainingService trainingService;
+    private final NotificationRepository notificationRepository;
 
     @Override
     public UserProfileDto getUserProfile() {
@@ -54,6 +55,20 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .goalDescription(user.getGoalDescription())
                 .role(user.getRole().toString())
                 .build();
+
+        Long notificationCount = notificationRepository.countByReceiverAndIsViewed(user, false);
+        userProfileDto.setNotificationCount(notificationCount);
+        if (user.getRole().equals(Role.ROLE_TRAINER)) {
+            userProfileDto.setAthletes(user.getAthletes().stream()
+                    .map(athlete -> UserListItemDto.builder()
+                            .id(athlete.getId())
+                            .userName(athlete.getName())
+                            .email(athlete.getEmail())
+                            .build())
+                    .toList());
+        } else if (user.getRole().equals(Role.ROLE_USER)) {
+            userProfileDto.setTrainerId(user.getTrainer() != null ? user.getTrainer().getId() : null);
+        }
 
         return userProfileDto;
     }

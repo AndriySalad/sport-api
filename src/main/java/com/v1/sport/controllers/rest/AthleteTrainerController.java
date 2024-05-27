@@ -18,7 +18,7 @@ public class AthleteTrainerController {
     private final AthleteTrainerService athleteTrainerService;
 
     @PostMapping("/request")
-    public GenericMessage createRequest(@RequestParam Long athleteId, @RequestParam Long trainerId, @RequestParam String type) {
+    public GenericMessage createRequest(@RequestParam("athleteId") Long athleteId, @RequestParam("trainerId") Long trainerId, @RequestParam("type") String type) {
         athleteTrainerService.createRequest(athleteId, trainerId, type);
         return new GenericMessage("Request sent from athlete with id " + athleteId + " to trainer with id " + trainerId);
     }
@@ -29,22 +29,27 @@ public class AthleteTrainerController {
         return new GenericMessage("Request handled with action: " + action);
     }
 
-    @GetMapping("/get-trainees-by-trainer/{trainerId}")
+    @GetMapping("/athlete/{athleteId}")
+    public TraineeDto getAthlete(@PathVariable("athleteId") Long athleteId){
+        return athleteTrainerService.getAthlete(athleteId);
+    }
+
+    @GetMapping("{trainerId}/athletes")
     public List<TraineeDto> getTraineesByTrainer(@PathVariable("trainerId") Long trainerId){
-        return athleteTrainerService.getTraineesByTrainer(trainerId);
+        return athleteTrainerService.getAthletesByTrainer(trainerId);
     }
 
-    @GetMapping("/get-trainer-by-trainee/{athleteId}")
-    public TrainerDto getTrainerByTrainee(@PathVariable("athleteId") Long athleteId){
-        return athleteTrainerService.getTrainerByTrainee(athleteId);
+    @GetMapping("/trainer/{trainerId}")
+    public TrainerDto getTrainer(@PathVariable("trainerId") Long trainerId){
+        return athleteTrainerService.getTrainer(trainerId);
     }
 
-    @GetMapping("/get-all-trainees")
+    @GetMapping("/athletes")
     public List<UserListItemDto> getAllTrainees(){
         return athleteTrainerService.getAllTrainees();
     }
 
-    @GetMapping("/get-all-trainers")
+    @GetMapping("/trainers")
     public List<UserListItemDto> getAllTrainers(){
         return athleteTrainerService.getAllTrainers();
     }

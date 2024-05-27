@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface AthleteTrainerService {
     
-    List<TraineeDto> getTraineesByTrainer(Long trainerId);
+    TraineeDto getAthlete(Long trainerId);
 
-    TrainerDto getTrainerByTrainee(Long athleteId);
+    TrainerDto getTrainer(Long athleteId);
 
     List<UserListItemDto> getAllTrainees();
 
@@ -22,4 +22,6 @@ public interface AthleteTrainerService {
     void createRequest(Long athleteId, Long trainerId, String type);
 
     void handleRequest(Long athleteId, Long trainerId, String action);
+
+    List<TraineeDto> getAthletesByTrainer(Long trainerId);
 }
