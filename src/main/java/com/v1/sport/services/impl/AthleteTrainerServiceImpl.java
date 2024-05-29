@@ -1,22 +1,19 @@
 package com.v1.sport.services.impl;
 
 import com.v1.sport.Exceptions.EntityNotFoundException;
-import com.v1.sport.data.dto.SocialMediaLinkDto;
-import com.v1.sport.data.dto.TraineeDto;
-import com.v1.sport.data.dto.TrainerDto;
-import com.v1.sport.data.dto.UserListItemDto;
-import com.v1.sport.data.models.Notification;
-import com.v1.sport.data.models.NotificationType;
-import com.v1.sport.data.models.Role;
-import com.v1.sport.data.models.User;
+import com.v1.sport.data.dto.*;
+import com.v1.sport.data.models.*;
 import com.v1.sport.repository.NotificationRepository;
+import com.v1.sport.repository.StravaTokenRepository;
 import com.v1.sport.repository.UserRepository;
 import com.v1.sport.services.AthleteTrainerService;
+import com.v1.sport.services.StravaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +21,8 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
 
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
+    private final StravaService stravaService;
+    private final StravaTokenRepository stravaTokenRepository;
 
     @Override
     public void handleRequest(Long athleteId, Long trainerId, String action) {
@@ -168,15 +167,25 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
     @Override
     public TraineeDto getAthlete(Long trainerId) {
         User athlete = userRepository.findById(trainerId)
-                .orElseThrow(() -> new EntityNotFoundException("Trainer not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Trainee not found"));
 
-        return mapToTraineeDto(athlete);
+        TraineeDto userProfileDto = mapToTraineeDto(athlete);
+
+        Optional<StravaToken> stravaToken = stravaTokenRepository.findByUser(athlete);
+        if (stravaToken.isPresent()) {
+            StravaToken stravaToken1 = stravaToken.get();
+            StravaRunStatsDto stravaRunStats = stravaService.getRunStats(stravaToken1.getAccessToken(), stravaToken1.getStravaUserId());
+            userProfileDto.setStravaRunStats(stravaRunStats);
+        }
+
+        return userProfileDto;
     }
 
     private TraineeDto mapToTraineeDto(User user) {
         return TraineeDto.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
+                .userName(user.getName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .phone(user.getPhoneNumber())
@@ -200,7 +209,16 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
         User trainer = userRepository.findById(trainerId)
                 .orElseThrow(() -> new EntityNotFoundException("Trainer not found"));
 
-        return mapToTrainerDto(trainer);
+        TrainerDto userProfileDto = mapToTrainerDto(trainer);
+
+        Optional<StravaToken> stravaToken = stravaTokenRepository.findByUser(trainer);
+        if (stravaToken.isPresent()) {
+            StravaToken stravaToken1 = stravaToken.get();
+            StravaRunStatsDto stravaRunStats = stravaService.getRunStats(stravaToken1.getAccessToken(), stravaToken1.getStravaUserId());
+            userProfileDto.setStravaRunStats(stravaRunStats);
+        }
+
+        return userProfileDto;
     }
 
     private TrainerDto mapToTrainerDto(User user) {
@@ -209,6 +227,7 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .userName(user.getName())
                 .phone(user.getPhoneNumber())
                 .goalDescription(user.getGoalDescription())
                 .experienceDescription(user.getExperienceDescription())

@@ -22,5 +22,6 @@ public class TrainerDto {
     private String injuryDescription;
     private String role;
     private List<SocialMediaLinkDto> socialMediaLinks;
+    private StravaRunStatsDto stravaRunStats;
 
 }
