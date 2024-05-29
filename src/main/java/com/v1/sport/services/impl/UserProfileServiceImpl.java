@@ -2,13 +2,12 @@ package com.v1.sport.services.impl;
 
 import com.v1.sport.Exceptions.EntityNotFoundException;
 import com.v1.sport.data.dto.*;
-import com.v1.sport.data.models.Role;
-import com.v1.sport.data.models.SocialMediaLink;
-import com.v1.sport.data.models.Training;
-import com.v1.sport.data.models.User;
+import com.v1.sport.data.models.*;
 import com.v1.sport.repository.NotificationRepository;
+import com.v1.sport.repository.StravaTokenRepository;
 import com.v1.sport.repository.TrainingRepository;
 import com.v1.sport.repository.UserRepository;
+import com.v1.sport.services.StravaService;
 import com.v1.sport.services.TrainingService;
 import com.v1.sport.services.UserProfileService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +26,8 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final TrainingRepository trainingRepository;
     private final TrainingService trainingService;
     private final NotificationRepository notificationRepository;
+    private final StravaTokenRepository stravaTokenRepository;
+    private final StravaService stravaService;
 
     @Override
     public UserProfileDto getUserProfile() {
@@ -69,6 +71,14 @@ public class UserProfileServiceImpl implements UserProfileService {
         } else if (user.getRole().equals(Role.ROLE_USER)) {
             userProfileDto.setTrainerId(user.getTrainer() != null ? user.getTrainer().getId() : null);
         }
+
+        Optional<StravaToken> stravaToken = stravaTokenRepository.findByUser(user);
+        if (stravaToken.isPresent()) {
+            StravaToken stravaToken1 = stravaToken.get();
+            StravaRunStatsDto stravaRunStats = stravaService.getRunStats(stravaToken1.getAccessToken(), stravaToken1.getStravaUserId());
+            userProfileDto.setStravaRunStats(stravaRunStats);
+        }
+
 
         return userProfileDto;
     }
