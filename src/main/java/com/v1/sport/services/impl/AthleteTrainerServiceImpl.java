@@ -113,10 +113,52 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
         User receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
 
+        String title = "";
+        String description = "";
+
+        switch (type) {
+            case "TO_BE_COACH":
+                title = "New coach request";
+                description = "You have a new coach request from " + sender.getName();
+                break;
+            case "TO_BE_ATHLETE":
+                title = "New athlete request";
+                description = "You have a new athlete request from " + sender.getName();
+                break;
+            case "ACCEPTED_COACH":
+                title = "Coach request accepted";
+                description = "Your coach request has been accepted by " + receiver.getName();
+                break;
+            case "ACCEPTED_ATHLETE":
+                title = "Athlete request accepted";
+                description = "Your athlete request has been accepted by " + receiver.getName();
+                break;
+            case "REJECTED_COACH":
+                title = "Coach request rejected";
+                description = "Your coach request has been rejected by " + receiver.getName();
+                break;
+            case "REJECTED_ATHLETE":
+                title = "Athlete request rejected";
+                description = "Your athlete request has been rejected by " + receiver.getName();
+                break;
+            case "REMOVED_COACH":
+                title = "Coach removed";
+                description = "You have been removed as a coach by " + receiver.getName();
+                break;
+            case "REMOVED_ATHLETE":
+                title = "Athlete removed";
+                description = "You have been removed as an athlete by " + receiver.getName();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid action: " + type);
+        }
+
         Notification notification = new Notification();
         notification.setSender(sender);
         notification.setReceiver(receiver);
         notification.setType(NotificationType.valueOf(type));
+        notification.setTitle(title);
+        notification.setDescription(description);
         notification.setViewed(false);
         notification.setDate(new Timestamp(System.currentTimeMillis()));
 
