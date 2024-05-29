@@ -22,4 +22,5 @@ public class TraineeDto {
     private String role;
     private List<SocialMediaLinkDto> socialMediaLinks;
     private Long trainerId;
+    private StravaRunStatsDto stravaRunStats;
 }

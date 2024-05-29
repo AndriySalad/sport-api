@@ -24,4 +24,5 @@ public class UserProfileDto {
     private List<UserListItemDto> athletes;
     private Long trainerId;
     private Long notificationCount;
+    private StravaRunStatsDto stravaRunStats;
 }
