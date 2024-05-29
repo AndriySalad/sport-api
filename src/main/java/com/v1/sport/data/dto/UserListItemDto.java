@@ -1,10 +1,6 @@
 package com.v1.sport.data.dto;
 
-import com.v1.sport.data.models.TrainAdvice;
 import lombok.*;
-
-import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter

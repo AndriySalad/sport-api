@@ -1,19 +1,23 @@
 package com.v1.sport.services.impl;
 
 import com.v1.sport.Exceptions.EntityNotFoundException;
-import com.v1.sport.data.dto.TrainingAdviceDto;
+import com.v1.sport.data.dto.ExerciseDto;
 import com.v1.sport.data.dto.TrainingDto;
-import com.v1.sport.data.models.TrainAdvice;
+import com.v1.sport.data.models.Exercise;
+import com.v1.sport.data.models.ExerciseType;
 import com.v1.sport.data.models.Training;
 import com.v1.sport.data.models.User;
-import com.v1.sport.repository.TrainingAdviceRepository;
+import com.v1.sport.repository.ExerciseRepository;
 import com.v1.sport.repository.TrainingRepository;
 import com.v1.sport.repository.UserRepository;
 import com.v1.sport.services.TrainingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,17 +28,20 @@ public class TrainingServiceImpl implements TrainingService {
 
     private final UserRepository userRepository;
     private final TrainingRepository trainingRepository;
-    private final TrainingAdviceRepository trainingAdviceRepository;
+    private final ExerciseRepository exerciseRepository;
 
     @Override
     @Transactional
-    public TrainingDto initTraining(Long athleteId) {
+    public TrainingDto initTraining(Long athleteId, TrainingDto trainingDto) {
         User athlete = userRepository.findById(athleteId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        User creator = userRepository.findById(trainingDto.getCreatorId()).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Training training = Training.builder()
                 .user(athlete)
-                .isPublished(false)
-                .isDone(false)
+                .date(trainingDto.getDate())
+                .description(trainingDto.getDescription())
+                .title(trainingDto.getTitle())
+                .creator(creator)
                 .build();
         Training savedTraining = trainingRepository.save(training);
         return mapToDto(savedTraining);
@@ -48,105 +55,118 @@ public class TrainingServiceImpl implements TrainingService {
         training.setDate(trainingDto.getDate());
         training.setDescription(trainingDto.getDescription());
         training.setTitle(trainingDto.getTitle());
-        training.setDone(trainingDto.isDone());
-        updateTrainAdvices(training, trainingDto);
         Training savedTraining = trainingRepository.save(training);
         return mapToDto(savedTraining);
     }
 
-    private void updateTrainAdvices(Training training, TrainingDto trainingDto) {
-        Set<TrainingAdviceDto> advices = trainingDto.getAdvices();
-        if (advices != null) {
-            Set<TrainAdvice> advicesBefore = training.getAdvices();
-
-            Set<TrainAdvice> trainAdvices =  advices.stream()
-                    .map(advice -> {
-                        TrainAdvice trainAdvice = trainingAdviceRepository.findById(advice.getId())
-                                .orElseThrow(() -> new EntityNotFoundException("Advice not found"));
-                        trainAdvice.setTitle(advice.getTitle());
-                        trainAdvice.setDescription(advice.getDescription());
-                        trainAdvice.setTraining(training);
-                        trainingAdviceRepository.save(trainAdvice);
-                        return trainAdvice;
-            }).collect(Collectors.toSet());
-            training.setAdvices(trainAdvices);
-
-            for (TrainAdvice advice : advicesBefore) {
-                if (!trainAdvices.contains(advice)) {
-                    trainingAdviceRepository.delete(advice);
-                }
-            }
-        }
+    @Override
+    public ExerciseDto updateExercise(ExerciseDto exerciseDto, Long trainingId, Long exerciseId) {
+        Training training = trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new EntityNotFoundException("Training not found"));
+        Exercise exercise = training.getExercises().stream()
+                .filter(a -> a.getId().equals(exerciseId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Advice not found"));
+        exercise.setTitle(exerciseDto.getTitle());
+        exercise.setDescription(exerciseDto.getDescription());
+        exercise.setTraining(training);
+        exercise.setCompleted(exerciseDto.getCompleted());
+        exercise.setSets(exerciseDto.getSets());
+        exercise.setRepetitions(exerciseDto.getRepetitions());
+        exercise.setMeasurement(exercise.getMeasurement());
+        exercise.setType(ExerciseType.valueOf(exerciseDto.getType()));
+        Exercise savedExercise = exerciseRepository.save(exercise);
+        return exerciseToDto(savedExercise);
     }
 
     @Override
     @Transactional
-    public TrainingAdviceDto initTrainingAdvice(Long trainingId) {
+    public ExerciseDto createExercise(Long trainingId, ExerciseDto exerciseDto) {
         Training training = trainingRepository.findById(trainingId)
                 .orElseThrow(() -> new EntityNotFoundException("Training not found"));
-        TrainAdvice advice = TrainAdvice.builder()
+        Exercise advice = Exercise.builder()
                 .training(training)
+                .title(exerciseDto.getTitle())
+                .description(exerciseDto.getDescription())
+                .completed(exerciseDto.getCompleted())
+                .sets(exerciseDto.getSets())
+                .repetitions(exerciseDto.getRepetitions())
+                .measurement(exerciseDto.getMeasurement())
+                .type(ExerciseType.valueOf(exerciseDto.getType()))
                 .build();
-        training.getAdvices().add(advice);
+        training.getExercises().add(advice);
         trainingRepository.save(training);
-        TrainAdvice savedAdvice = trainingAdviceRepository.save(advice);
-        return TrainingAdviceDto.builder()
-                .id(savedAdvice.getId())
-                .build();
+        Exercise savedExercise = exerciseRepository.save(advice);
+        return exerciseToDto(savedExercise);
     }
 
     @Override
-    public TrainingDto getTraining(Long trainingId) {
-        Training training = trainingRepository.findById(trainingId)
-                .orElseThrow(() -> new EntityNotFoundException("Training not found"));
-        return mapToDto(training);
-    }
+    public List<TrainingDto> getTrainingsByAthlete(Long athleteId, String startDateStr, String endDateStr) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(startDateStr, formatter);
+        LocalDate endDate = LocalDate.parse(endDateStr, formatter);
 
-    @Override
-    public List<TrainingDto> getTrainingsByAthlete(Long athleteId) {
-        List<Training> trainings = trainingRepository.findAllByUserId(athleteId);
+        String startDateFinal = startDate.format(formatter);
+        String endDateFinal = endDate.format(formatter);
+
+        List<Training> trainings = trainingRepository.findAllByUserIdAndDateBetween(athleteId, startDateFinal, endDateFinal);
         return trainings.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public TrainingDto publishTraining(Long trainingId) {
-        Training training = trainingRepository.findById(trainingId)
+    public ExerciseDto markExerciseAsDone(Long trainingId, Long exerciseId) {
+        User user = userRepository
+                .findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Training training = trainingRepository.findByIdAndUser(trainingId, user)
                 .orElseThrow(() -> new EntityNotFoundException("Training not found"));
-        training.setPublished(true);
-        Training savedTraining = trainingRepository.save(training);
-        return mapToDto(savedTraining);
+        Exercise exercise = exerciseRepository.findByIdAndTraining(exerciseId, training)
+                .orElseThrow(() -> new EntityNotFoundException("Exercise not found"));
+        exercise.setCompleted(true);
+        Exercise savedExercise = exerciseRepository.save(exercise);
+        return exerciseToDto(savedExercise);
     }
 
     @Override
-    public TrainingDto markTrainingAsDone(Long trainingId) {
-        Training training = trainingRepository.findById(trainingId)
-                .orElseThrow(() -> new EntityNotFoundException("Training not found"));
-        training.setDone(true);
-        Training savedTraining = trainingRepository.save(training);
-        return mapToDto(savedTraining);
-    }
-
-    private TrainingDto mapToDto(Training training) {
+    public TrainingDto mapToDto(Training training) {
         return TrainingDto.builder()
                 .id(training.getId())
                 .title(training.getTitle())
                 .description(training.getDescription())
                 .date(training.getDate())
-                .isDone(training.isDone())
-                .advices(training.getAdvices() != null ? advicesToDto(training.getAdvices()) : null)
-                .isPublished(training.isPublished())
+                .exercises(training.getExercises() != null ? exercisesToDto(training.getExercises()) : null)
+                .creatorId(training.getCreator() != null ?  training.getCreator().getId() : null)
                 .build();
     }
 
-    private Set<TrainingAdviceDto> advicesToDto(Set<TrainAdvice> advices) {
-        return advices.stream()
-                .map(advice -> TrainingAdviceDto.builder()
+    private Set<ExerciseDto> exercisesToDto(Set<Exercise> exercises) {
+        return exercises.stream()
+                .map(advice -> ExerciseDto.builder()
                         .id(advice.getId())
                         .title(advice.getTitle())
                         .description(advice.getDescription())
+                        .completed(advice.getCompleted())
+                        .sets(advice.getSets())
+                        .repetitions(advice.getRepetitions())
+                        .measurement(advice.getMeasurement())
+                        .type(advice.getType().toString())
                         .build())
                 .collect(Collectors.toSet());
+    }
+
+    private ExerciseDto exerciseToDto(Exercise exercise) {
+        return  ExerciseDto.builder()
+                        .id(exercise.getId())
+                        .title(exercise.getTitle())
+                        .description(exercise.getDescription())
+                        .completed(exercise.getCompleted())
+                        .sets(exercise.getSets())
+                        .repetitions(exercise.getRepetitions())
+                        .measurement(exercise.getMeasurement())
+                        .type(exercise.getType().toString())
+                        .build();
+
     }
 }

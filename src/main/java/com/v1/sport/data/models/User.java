@@ -62,6 +62,15 @@ public class User implements UserDetails {
     @JoinColumn(name = "trainer_id")
     private User trainer;
 
+    @Column(name = "goal_description", length = 10000)
+    private String goalDescription;
+
+    @Column(name = "experience_description", length = 10000)
+    private String experienceDescription;
+
+    @Column(name = "injury_description", length = 10000)
+    private String injuryDescription;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

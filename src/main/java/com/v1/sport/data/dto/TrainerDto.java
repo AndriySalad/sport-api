@@ -17,6 +17,10 @@ public class TrainerDto {
     private String userName;
     private String email;
     private String phone;
+    private String goalDescription;
+    private String experienceDescription;
+    private String injuryDescription;
+    private String role;
     private List<SocialMediaLinkDto> socialMediaLinks;
 
 }

@@ -28,15 +28,15 @@ public class Training {
     private String date;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "training")
-    private Set<TrainAdvice> advices;
+    private Set<Exercise> exercises;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "is_done")
-    private boolean isDone;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id")
+    private User creator;
 
-    @Column(name = "is_published")
-    private boolean isPublished;
+
 }

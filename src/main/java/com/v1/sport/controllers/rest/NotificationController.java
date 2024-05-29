@@ -2,11 +2,11 @@ package com.v1.sport.controllers.rest;
 
 import com.v1.sport.data.dto.NotificationDto;
 import com.v1.sport.services.NotificationService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,28 +15,29 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/{userId}")
-    public List<NotificationDto> getNewNotifications(@PathVariable("userId") Long userId){
-        return notificationService.getNewNotifications(userId);
+    @GetMapping()
+    public List<NotificationDto> getNewNotifications() {
+        return notificationService.getNewNotifications();
     }
 
-    @GetMapping("/all/{userId}")
-    public List<NotificationDto> getAllNotifications(@PathVariable("userId") Long userId){
-        return notificationService.getAllNotifications(userId);
+    @GetMapping("/all")
+    public List<NotificationDto> getAllNotifications() {
+        return notificationService.getAllNotifications();
     }
 
     @PutMapping("/{notificationId}")
-    public NotificationDto markNotificationAsRead(@PathVariable("notificationId") Long notificationId){
+    public NotificationDto markNotificationAsRead(@PathVariable("notificationId") Long notificationId) {
         return notificationService.markNotificationAsRead(notificationId);
     }
 
     @PutMapping("/all/{userId}")
-    public List<NotificationDto> markAllNotificationsAsRead(@PathVariable("userId") Long userId){
+    public List<NotificationDto> markAllNotificationsAsRead(@PathVariable("userId") Long userId) {
         return notificationService.markAllNotificationsAsRead(userId);
     }
 
-    @PostMapping("/{trainerId}/to/{athleteId}")
-    public NotificationDto createNotificationAboutNewTrainings(@PathVariable("trainerId") Long trainerId, @PathVariable("athleteId") Long athleteId){
-        return notificationService.createNotification(trainerId, athleteId);
+    @PostMapping("/{notificationId}/response")
+    public NotificationDto handleRequestResponse(@PathVariable("notificationId") Long notificationId, @RequestBody Map<String, String> response) {
+        String action = response.get("response");
+        return notificationService.handleRequestResponse(notificationId, action);
     }
 }

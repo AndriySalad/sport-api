@@ -8,9 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Entity(name = "training_advices")
+@Entity(name = "exercise")
 @Table
-public class TrainAdvice {
+public class Exercise {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +21,22 @@ public class TrainAdvice {
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private ExerciseType type;
+
+    @Column(name = "measurement")
+    private String measurement;
+
+    @Column(name = "sets")
+    private Long sets;
+
+    @Column(name = "repetitions")
+    private Long repetitions;
+
+    @Column(name = "complited")
+    private Boolean completed;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "training_id")

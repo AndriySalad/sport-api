@@ -1,8 +1,7 @@
 package com.v1.sport.controllers.rest;
 
-import com.v1.sport.data.dto.TrainingAdviceDto;
+import com.v1.sport.data.dto.ExerciseDto;
 import com.v1.sport.data.dto.TrainingDto;
-import com.v1.sport.data.models.Training;
 import com.v1.sport.services.TrainingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +16,8 @@ public class TrainingController {
     private final TrainingService trainingService;
 
     @PostMapping("/{athleteId}")
-    public TrainingDto initTraining(@PathVariable("athleteId") Long athleteId) {
-        return trainingService.initTraining(athleteId);
+    public TrainingDto createTraining(@PathVariable("athleteId") Long athleteId, @RequestBody TrainingDto trainingDto) {
+        return trainingService.initTraining(athleteId, trainingDto);
     }
 
     @PutMapping("/{trainingId}")
@@ -26,28 +25,28 @@ public class TrainingController {
         return trainingService.updateTraining(trainingId, trainingDto);
     }
 
-    @GetMapping("/{trainingId}")
-    public TrainingDto getTraining(@PathVariable("trainingId") Long trainingId) {
-        return trainingService.getTraining(trainingId);
+    @GetMapping("/by-athlete/{athleteId}/between/{startDate}/and/{endDate}")
+    public List<TrainingDto> getTrainingsByAthlete(@PathVariable("athleteId") Long athleteId,
+                                                   @PathVariable("startDate") String startDate,
+                                                   @PathVariable("endDate") String endDate) {
+        return trainingService.getTrainingsByAthlete(athleteId, startDate, endDate);
     }
 
-    @GetMapping("/by-athlete/{athleteId}")
-    public List<TrainingDto> getTrainingsByAthlete(@PathVariable("athleteId") Long athleteId) {
-        return trainingService.getTrainingsByAthlete(athleteId);
+    @PostMapping("/{trainingId}/exercises")
+    public ExerciseDto createExercise(@PathVariable("trainingId") Long trainingId, @RequestBody ExerciseDto exerciseDto) {
+        return trainingService.createExercise(trainingId, exerciseDto);
     }
 
-    @PostMapping("/{trainingId}/advices")
-    public TrainingAdviceDto initTrainingAdvice(@PathVariable("trainingId") Long trainingId) {
-        return trainingService.initTrainingAdvice(trainingId);
+    @PutMapping("/is-done/{trainingId}/{exerciseId}")
+    public ExerciseDto markExerciseAsDone(@PathVariable("trainingId") Long trainingId,
+                                          @PathVariable("exerciseId") Long exerciseId) {
+        return trainingService.markExerciseAsDone(trainingId, exerciseId);
     }
 
-    @PutMapping("/publish/{trainingId}")
-    public TrainingDto publishTraining(@PathVariable("trainingId") Long trainingId) {
-        return trainingService.publishTraining(trainingId);
-    }
-
-    @PutMapping("/is-done/{trainingId}")
-    public TrainingDto markTrainingAsDone(@PathVariable("trainingId") Long trainingId) {
-        return trainingService.markTrainingAsDone(trainingId);
+    @PutMapping("/{trainingId}/advices/{adviceId}")
+    public ExerciseDto updateTrainingAdvice(@PathVariable("trainingId") Long trainingId,
+                                            @PathVariable("adviceId") Long adviceId,
+                                            @RequestBody ExerciseDto exerciseDto) {
+        return trainingService.updateExercise(exerciseDto, trainingId, adviceId);
     }
 }
