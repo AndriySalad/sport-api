@@ -9,6 +9,7 @@ ENV PATH=/opt/gradle/gradle-7.5/bin:$PATH
 COPY . /app
 WORKDIR /app
 
+RUN chmod +x ./gradlew
 RUN ./gradlew bootJar --no-daemon
 
 FROM openjdk:17-jdk-slim
