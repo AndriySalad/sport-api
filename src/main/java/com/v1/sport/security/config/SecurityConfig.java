@@ -54,7 +54,7 @@ public class SecurityConfig {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("*");
         config.addAllowedHeader("Authorization");
         config.addAllowedHeader("*");
         config.addAllowedMethod("OPTIONS");
