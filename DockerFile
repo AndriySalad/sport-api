@@ -1,8 +1,13 @@
 FROM ubuntu:latest AS build
 
-RUN apt-get update
-RUN apt-get install openjdk-17-jdk -y
-COPY . .
+RUN apt-get update && apt-get install -y openjdk-17-jdk wget unzip
+
+RUN wget https://services.gradle.org/distributions/gradle-7.5-bin.zip -P /tmp
+RUN unzip -d /opt/gradle /tmp/gradle-7.5-bin.zip
+ENV PATH=/opt/gradle/gradle-7.5/bin:$PATH
+
+COPY . /app
+WORKDIR /app
 
 RUN ./gradlew bootJar --no-daemon
 
@@ -10,6 +15,6 @@ FROM openjdk:17-jdk-slim
 
 EXPOSE 8080
 
-COPY --from=build /build/libs/demo-1.jar app.jar
+COPY --from=build /sport-api/build/libs/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
