@@ -54,7 +54,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        config.addAllowedOrigin("https://sport-ui-6ss5.onrender.com");
+        config.addAllowedOrigin("https://salmon-pond-078c09810.5.azurestaticapps.net");
         config.setAllowCredentials(true);
         config.addAllowedHeader("*");
         config.addAllowedMethod("OPTIONS");
