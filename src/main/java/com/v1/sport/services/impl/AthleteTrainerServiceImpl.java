@@ -172,7 +172,7 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
         TraineeDto userProfileDto = mapToTraineeDto(athlete);
 
         Optional<StravaToken> stravaToken = stravaTokenRepository.findByUser(athlete);
-        if (stravaToken.isPresent()) {
+        if (stravaToken.isPresent() && stravaToken.get().getExpiresAt() > System.currentTimeMillis() / 1000) {
             StravaToken stravaToken1 = stravaToken.get();
             StravaRunStatsDto stravaRunStats = stravaService.getRunStats(stravaToken1.getAccessToken(), stravaToken1.getStravaUserId());
             userProfileDto.setStravaRunStats(stravaRunStats);
@@ -212,7 +212,7 @@ public class AthleteTrainerServiceImpl implements AthleteTrainerService {
         TrainerDto userProfileDto = mapToTrainerDto(trainer);
 
         Optional<StravaToken> stravaToken = stravaTokenRepository.findByUser(trainer);
-        if (stravaToken.isPresent()) {
+        if (stravaToken.isPresent() && stravaToken.get().getExpiresAt() > System.currentTimeMillis() / 1000) {
             StravaToken stravaToken1 = stravaToken.get();
             StravaRunStatsDto stravaRunStats = stravaService.getRunStats(stravaToken1.getAccessToken(), stravaToken1.getStravaUserId());
             userProfileDto.setStravaRunStats(stravaRunStats);

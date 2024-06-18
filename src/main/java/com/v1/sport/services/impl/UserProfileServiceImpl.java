@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -73,7 +74,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
 
         Optional<StravaToken> stravaToken = stravaTokenRepository.findByUser(user);
-        if (stravaToken.isPresent()) {
+        if (stravaToken.isPresent() && stravaToken.get().getExpiresAt() > System.currentTimeMillis() / 1000) {
             StravaToken stravaToken1 = stravaToken.get();
             StravaRunStatsDto stravaRunStats = stravaService.getRunStats(stravaToken1.getAccessToken(), stravaToken1.getStravaUserId());
             userProfileDto.setStravaRunStats(stravaRunStats);
